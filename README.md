@@ -83,6 +83,17 @@ src/
 - Firefox (latest)
 - Safari (latest)
 
+## Deployment
+
+### Cloudflare Pages
+
+1. Connect your repository to Cloudflare Pages
+2. Set build command: `npm run build`
+3. Set output directory: `dist`
+4. The `public/_headers` file automatically configures security headers and caching
+
+The production build includes code splitting, minification, compression, and optimized caching.
+
 ## License
 
 MIT

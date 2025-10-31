@@ -1,0 +1,34 @@
+# Security Headers
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  
+  # Content Security Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:; worker-src 'self' blob:;
+  
+  # Caching
+  Cache-Control: public, max-age=31536000, immutable
+
+# Static assets - aggressive caching
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML files - no cache
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Data files
+/data/*
+  Cache-Control: public, max-age=3600
+
+# Service Worker
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Manifest
+/manifest.json
+  Cache-Control: public, max-age=3600
+

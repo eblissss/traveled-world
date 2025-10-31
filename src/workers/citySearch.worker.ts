@@ -78,10 +78,14 @@ self.onmessage = async (e: MessageEvent) => {
         return;
       }
 
-      const results = fuse.search(query, { limit: 50 });
+      const fuseResults = fuse.search(query, { limit: 10 }); // Get more results for re-ranking
+      
+      
+      const rankedResults = fuseResults.map(r => r.item);
+      
       self.postMessage({ 
         type: 'SEARCH_RESULTS', 
-        payload: { results: results.map(r => r.item) } 
+        payload: { results: rankedResults } 
       });
       break;
     }

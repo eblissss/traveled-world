@@ -9,6 +9,7 @@ export interface CityRecord {
   admin_name: string;
   capital: string;
   population: number;
+  id: number;
 }
 
 export interface City {
@@ -19,5 +20,11 @@ export interface City {
   type: 'visited' | 'lived';
   lastVisited: string; // ISO 8601: "2024-10-15"
   dateAdded: string; // ISO 8601: "2025-10-30T12:39:00Z"
+  // Additional city data
+  adminName?: string; // Admin/state name
+  capital?: string; // Capital type (primary, admin, minor, etc.)
+  population?: number; // City population
+  iso2?: string; // ISO 2-letter country code
+  iso3?: string; // ISO 3-letter country code
 }
 

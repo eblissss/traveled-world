@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTravelStore } from '../store/travelStore';
 import type { CityRecord } from '../types/city';
 
 interface UseCitySearchReturn {
@@ -10,6 +11,7 @@ interface UseCitySearchReturn {
 }
 
 export function useCitySearch(): UseCitySearchReturn {
+  const { preferences } = useTravelStore();
   const [results, setResults] = useState<CityRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -64,14 +66,15 @@ export function useCitySearch(): UseCitySearchReturn {
       return;
     }
 
+    const debounceDelay = preferences.searchDebounceMs ?? 50;
     debounceTimerRef.current = window.setTimeout(() => {
       setIsLoading(true);
       workerRef.current?.postMessage({
         type: 'SEARCH',
         payload: { query: query.trim() }
       });
-    }, 50); // 50ms debounce
-  }, [isReady]);
+    }, debounceDelay);
+  }, [isReady, preferences.searchDebounceMs]);
 
   return { results, isLoading, isReady, error, search };
 }

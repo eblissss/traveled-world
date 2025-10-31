@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../../App';
 import { useTravelStore } from '../../store/travelStore';
 import * as useCitySearchModule from '../../hooks/useCitySearch';
+import { resetStore } from '../utils/test-utils';
 
 // Mock the worker
 vi.mock('../../hooks/useCitySearch', () => ({
@@ -26,16 +27,7 @@ vi.mock('react-leaflet', () => ({
 
 describe('Add City Integration', () => {
   beforeEach(() => {
-    localStorage.clear();
-    useTravelStore.setState({
-      cities: [],
-      trips: [],
-      preferences: {
-        defaultView: '3d',
-        theme: 'dark',
-        animationSpeed: 1.0
-      }
-    });
+    resetStore();
 
     vi.mocked(useCitySearchModule.useCitySearch).mockReturnValue({
       results: [
@@ -61,39 +53,56 @@ describe('Add City Integration', () => {
 
   it('should add a city successfully', async () => {
     const user = userEvent.setup();
-    render(<App />);
+    
+    await act(async () => {
+      render(<App />);
+    });
 
     // Find search input
     const searchInput = screen.getByLabelText('Search for a city');
     expect(searchInput).toBeInTheDocument();
 
     // Type in search
-    await user.type(searchInput, 'Tokyo');
+    await act(async () => {
+      await user.type(searchInput, 'Tokyo');
+    });
 
     // Wait for results to appear
-    const tokyoResult = await screen.findByText(/Tokyo/);
+    const tokyoResult = await waitFor(() => {
+      return screen.getByText(/Tokyo/);
+    });
     expect(tokyoResult).toBeInTheDocument();
 
     // Click on result
-    await user.click(tokyoResult);
+    await act(async () => {
+      await user.click(tokyoResult);
+    });
 
     // Form should appear
-    const cityName = await screen.findByText('Tokyo, Japan');
+    const cityName = await waitFor(() => {
+      return screen.getByText('Tokyo, Japan');
+    });
     expect(cityName).toBeInTheDocument();
 
     // Fill date
     const dateInput = screen.getByLabelText('Visit Date');
-    await user.clear(dateInput);
-    await user.type(dateInput, '2024-01-01');
+    await act(async () => {
+      await user.clear(dateInput);
+      await user.type(dateInput, '2024-01-01');
+    });
 
     // Submit form
     const submitButton = screen.getByText('Add City');
-    await user.click(submitButton);
+    await act(async () => {
+      await user.click(submitButton);
+    });
 
     // Wait for city to be added
-    const cities = useTravelStore.getState().cities;
-    expect(cities).toHaveLength(1);
-    expect(cities[0].name).toBe('Tokyo');
+    await waitFor(() => {
+      const cities = useTravelStore.getState().cities;
+      expect(cities).toHaveLength(1);
+      expect(cities[0].name).toBe('Tokyo');
+    });
   });
 
   it('should show error when adding duplicate city', async () => {
@@ -110,26 +119,38 @@ describe('Add City Integration', () => {
       dateAdded: new Date().toISOString()
     });
 
-    render(<App />);
+    await act(async () => {
+      render(<App />);
+    });
 
     const searchInput = screen.getByLabelText('Search for a city');
-    await user.type(searchInput, 'Tokyo');
+    await act(async () => {
+      await user.type(searchInput, 'Tokyo');
+    });
 
-    const tokyoResult = await screen.findByText(/Tokyo/);
-    await user.click(tokyoResult);
+    const tokyoResult = await waitFor(() => screen.getByText(/Tokyo/));
+    await act(async () => {
+      await user.click(tokyoResult);
+    });
 
-    const cityName = await screen.findByText('Tokyo, Japan');
+    const cityName = await waitFor(() => screen.getByText('Tokyo, Japan'));
     expect(cityName).toBeInTheDocument();
 
     const dateInput = screen.getByLabelText('Visit Date');
-    await user.clear(dateInput);
-    await user.type(dateInput, '2024-01-02');
+    await act(async () => {
+      await user.clear(dateInput);
+      await user.type(dateInput, '2024-01-02');
+    });
 
     const submitButton = screen.getByText('Add City');
-    await user.click(submitButton);
+    await act(async () => {
+      await user.click(submitButton);
+    });
 
     // Should show error
-    const errorMessage = await screen.findByText(/already in your list/i);
+    const errorMessage = await waitFor(() => {
+      return screen.getByText(/already in your list/i);
+    });
     expect(errorMessage).toBeInTheDocument();
   });
 });

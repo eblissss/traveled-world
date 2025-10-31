@@ -1,7 +1,10 @@
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { CitySearchInput } from '../../components/input/CitySearchInput';
 import * as useCitySearchModule from '../../hooks/useCitySearch';
+import { resetStore } from '../utils/test-utils';
 
 // Mock the worker
 vi.mock('../../hooks/useCitySearch', () => ({
@@ -12,7 +15,9 @@ describe('CitySearchInput', () => {
   const mockOnSelect = vi.fn();
 
   beforeEach(() => {
+    resetStore();
     vi.clearAllMocks();
+    const mockSearch = vi.fn();
     vi.mocked(useCitySearchModule.useCitySearch).mockReturnValue({
       results: [
         {
@@ -25,19 +30,20 @@ describe('CitySearchInput', () => {
           iso3: 'JPN',
           admin_name: 'Tokyo',
           capital: 'primary',
-          population: 37977000
+          population: 37977000,
+          id: 1
         }
       ],
       isLoading: false,
       isReady: true,
       error: null,
-      search: vi.fn()
+      search: mockSearch
     });
   });
 
   it('renders search input', () => {
     render(<CitySearchInput onSelect={mockOnSelect} />);
-    const input = screen.getByLabelText('Search for a city');
+    const input = screen.getByPlaceholderText('Search for a city...');
     expect(input).toBeInTheDocument();
   });
 
@@ -54,4 +60,6 @@ describe('CitySearchInput', () => {
     const input = screen.getByPlaceholderText('Loading cities...');
     expect(input).toBeDisabled();
   });
+
+
 });

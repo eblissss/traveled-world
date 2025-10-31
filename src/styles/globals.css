@@ -11,6 +11,16 @@
   --accent-primary: #3B82F6;
   --accent-visited: #10B981;
   --accent-lived: #F59E0B;
+  
+  /* Additional colors */
+  --tooltip-bg: rgba(0, 0, 0, 0.9);
+  --tooltip-text: #FFFFFF;
+  --border-color: #E5E7EB;
+  --border-color-dark: #374151;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,6 +33,11 @@
     --accent-primary: #60A5FA;
     --accent-visited: #34D399;
     --accent-lived: #FBBF24;
+    
+    /* Dark theme overrides */
+    --border-color: #374151;
+    --border-color-dark: #4B5563;
+    --tooltip-bg: rgba(0, 0, 0, 0.95);
   }
 }
 
@@ -34,10 +49,57 @@
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 400;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
 }
+
+/* Enhanced Typography System */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2.25rem; font-weight: 700; }
+h2 { font-size: 1.875rem; font-weight: 600; }
+h3 { font-size: 1.5rem; font-weight: 600; }
+h4 { font-size: 1.25rem; font-weight: 600; }
+h5 { font-size: 1.125rem; font-weight: 500; }
+h6 { font-size: 1rem; font-weight: 500; }
+
+p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+/* Font weight utilities */
+.font-light { font-weight: 300; }
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+/* JetBrains Mono for dates, code, and technical elements */
+.font-mono,
+[class*="font-mono"],
+code,
+pre,
+kbd {
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-weight: 400;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+}
+
+/* Improved spacing scale */
+.space-y-1 > * + * { margin-top: 0.25rem; }
+.space-y-2 > * + * { margin-top: 0.5rem; }
+.space-y-3 > * + * { margin-top: 0.75rem; }
+.space-y-4 > * + * { margin-top: 1rem; }
+.space-y-5 > * + * { margin-top: 1.25rem; }
+.space-y-6 > * + * { margin-top: 1.5rem; }
 
 #root {
   min-height: 100vh;
@@ -57,6 +119,19 @@ html {
   outline-style: solid;
 }
 
+/* Screen reader only class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 /* Skip to main content link for accessibility */
 .skip-link {
   position: absolute;
@@ -64,13 +139,54 @@ html {
   left: 0;
   background: var(--accent-primary);
   color: white;
-  padding: 8px;
+  padding: 8px 16px;
   text-decoration: none;
   z-index: 100;
+  border-radius: 0 0 4px 0;
+  font-weight: 500;
 }
 
 .skip-link:focus {
   top: 0;
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F0F0F0;
+    --text-primary: #000000;
+    --text-secondary: #333333;
+    --accent-primary: #0066CC;
+    --accent-visited: #006600;
+    --accent-lived: #CC6600;
+    --border-color: #000000;
+    --border-color-dark: #FFFFFF;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #000000;
+      --bg-secondary: #1A1A1A;
+      --text-primary: #FFFFFF;
+      --text-secondary: #CCCCCC;
+      --accent-primary: #3399FF;
+      --accent-visited: #00FF00;
+      --accent-lived: #FF9900;
+      --border-color: #FFFFFF;
+      --border-color-dark: #FFFFFF;
+    }
+  }
+  
+  * {
+    border-color: var(--border-color) !important;
+  }
+  
+  button, input, select, textarea {
+    border-width: 2px !important;
+  }
 }
 
 /* Reduced motion */
@@ -90,22 +206,366 @@ html {
   }
 }
 
-/* Custom scrollbar */
+/* Enhanced scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--text-secondary);
-  border-radius: 4px;
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-primary);
+  background: rgba(156, 163, 175, 0.5);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+/* Utility classes for consistent spacing */
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-5 { gap: 1.25rem; }
+.gap-6 { gap: 1.5rem; }
+
+/* Consistent border radius utilities */
+.rounded-xs { border-radius: 0.125rem; }
+.rounded-sm { border-radius: 0.25rem; }
+.rounded-md { border-radius: 0.375rem; }
+.rounded-lg { border-radius: 0.5rem; }
+.rounded-xl { border-radius: 0.75rem; }
+.rounded-2xl { border-radius: 1rem; }
+.rounded-3xl { border-radius: 1.5rem; }
+
+/* Glass morphism utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Focus utilities */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-accent-primary focus:ring-opacity-50 focus:ring-offset-2;
+}
+
+/* Animation utilities */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom Map Markers */
+.custom-marker {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.custom-marker:hover {
+  transform: scale(1.1) !important;
+  z-index: 1000 !important;
+}
+
+/* Interactive markers - ensure they can receive clicks */
+.interactive-marker {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.interactive-marker img {
+  pointer-events: none !important; /* Let the container handle events */
+}
+
+.hover-preview-marker {
+  pointer-events: none;
+  opacity: 0.7;
+  z-index: 999;
+}
+
+/* Stunning markers with enhanced visual effects */
+.stunning-marker {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  /* Force the entire marker area to be clickable */
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.stunning-marker:hover {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  z-index: 1000 !important;
+}
+
+.stunning-marker.hovered {
+  animation: markerGlow 1.5s ease-in-out infinite alternate;
+  z-index: 1000 !important;
+}
+
+@keyframes markerGlow {
+  0% {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)) brightness(1);
+  }
+  100% {
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2)) brightness(1.05);
+  }
+}
+
+/* Div-based markers for full clickability */
+.stunning-div-marker {
+  pointer-events: none !important; /* Let the inner div handle events */
+}
+
+.stunning-marker-container {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  position: relative;
+  /* Ensure overflow is allowed */
+  overflow: visible !important;
+  /* Add subtle 3D transform */
+  transform: perspective(100px) rotateX(5deg);
+}
+
+/* Removed CSS :hover rule since we handle hover effects manually with .hovered class */
+
+.stunning-marker-container.hovered[data-city-type="visited"] {
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+}
+
+.stunning-marker-container.hovered[data-city-type="lived"] {
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+}
+
+.stunning-marker-container svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Custom Popup Styles */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .leaflet-popup-content-wrapper {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .leaflet-popup-tip {
+  background: rgba(15, 23, 42, 0.95) !important;
+}
+
+/* Enhanced marker cluster styles */
+.marker-cluster {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.marker-cluster:hover {
+  transform: scale(1.1) !important;
+  z-index: 1000 !important;
+}
+
+/* Custom cluster animations */
+.marker-cluster div {
+  transition: all 0.3s ease !important;
+}
+
+.marker-cluster:hover div {
+  transform: scale(1.1) !important;
+}
+
+/* Map control enhancements */
+.leaflet-control-container .leaflet-control {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  backdrop-filter: blur(8px) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .leaflet-control-container .leaflet-control {
+  background: rgba(15, 23, 42, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Zoom control container */
+.leaflet-control-zoom.leaflet-bar {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-md) !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Zoom control buttons */
+.leaflet-control-zoom a {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 0 !important;
+  width: 40px !important;
+  height: 40px !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+  font-size: 0 !important; /* Hide text content */
+}
+
+.leaflet-control-zoom a:first-child {
+  border-bottom: 1px solid var(--border-color) !important;
+  border-radius: 10px 10px 0 0 !important;
+}
+
+.leaflet-control-zoom a:last-child {
+  border-radius: 0 0 10px 10px !important;
+}
+
+/* Hide the original text symbols */
+.leaflet-control-zoom a span[aria-hidden="true"] {
+  display: none !important;
+}
+
+/* Add Lucide icons using CSS */
+.leaflet-control-zoom-in:before {
+  content: "" !important;
+  display: block !important;
+  width: 20px !important;
+  height: 20px !important;
+  background: currentColor !important;
+  mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='currentColor'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M12 4v16m8-8H4'/%3e%3c/svg%3e") no-repeat center !important;
+  mask-size: contain !important;
+  -webkit-mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='currentColor'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M12 4v16m8-8H4'/%3e%3c/svg%3e") no-repeat center !important;
+  -webkit-mask-size: contain !important;
+}
+
+.leaflet-control-zoom-out:before {
+  content: "" !important;
+  display: block !important;
+  width: 20px !important;
+  height: 20px !important;
+  background: currentColor !important;
+  mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='currentColor'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M20 12H4'/%3e%3c/svg%3e") no-repeat center !important;
+  mask-size: contain !important;
+  -webkit-mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='currentColor'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M20 12H4'/%3e%3c/svg%3e") no-repeat center !important;
+  -webkit-mask-size: contain !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: var(--accent-primary) !important;
+  color: white !important;
+  border-color: var(--accent-primary) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
+}
+
+.leaflet-control-zoom a:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Disabled state */
+.leaflet-control-zoom a[aria-disabled="true"] {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+.leaflet-control-zoom a[aria-disabled="true"]:hover {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Dark theme specific zoom control styling */
+.dark .leaflet-control-zoom a {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark .leaflet-control-zoom a:hover {
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .leaflet-control-zoom a:active {
+  box-shadow: 0 2px 4px rgba(96, 165, 250, 0.15) !important;
+}
+
+/* Focus states for accessibility */
+.leaflet-control-zoom a:focus {
+  outline: 2px solid var(--accent-primary) !important;
+  outline-offset: 2px !important;
+}
+
+/* Loading spinner for markers */
+.marker-loading {
+  animation: markerPulse 2s infinite;
+}
+
+@keyframes markerPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+/* Responsive marker scaling */
+@media (max-width: 768px) {
+  .custom-marker {
+    transform: scale(0.8);
+  }
+
+  .custom-marker:hover {
+    transform: scale(0.9) !important;
+  }
 }
 

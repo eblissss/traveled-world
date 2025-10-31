@@ -1,20 +1,44 @@
-import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useRef, useEffect, forwardRef } from 'react';
+import { X } from 'lucide-react';
 import { useCitySearch } from '../../hooks/useCitySearch';
-import { dropdownVariants } from '../../lib/animations';
 import type { CityRecord } from '../../types/city';
 
 interface CitySearchInputProps {
   onSelect: (city: CityRecord) => void;
 }
 
-export function CitySearchInput({ onSelect }: CitySearchInputProps) {
-  const [query, setQuery] = useState('');
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isOpen, setIsOpen] = useState(false);
-  const { results, isLoading, isReady, search } = useCitySearch();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+export const CitySearchInput = forwardRef<HTMLInputElement, CitySearchInputProps>(
+  ({ onSelect }, ref) => {
+    const [query, setQuery] = useState('');
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchHistory, setSearchHistory] = useState<CityRecord[]>([]);
+
+    const { results, isLoading, isReady, search } = useCitySearch();
+    const inputRef = useRef<HTMLInputElement>(null);
+    const resultRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+    const actualInputRef = (ref && typeof ref !== 'function' ? ref : inputRef) as React.RefObject<HTMLInputElement>;
+
+  // Load search history from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('city-search-history');
+    if (saved) {
+      try {
+        setSearchHistory(JSON.parse(saved).slice(0, 5)); // Keep only last 5 searches
+      } catch (e) {
+        // Ignore errors
+      }
+    }
+  }, []);
+
+  // Save search history
+  const saveToHistory = (city: CityRecord) => {
+    const updated = [city, ...searchHistory.filter(c => c.city !== city.city)].slice(0, 5);
+    setSearchHistory(updated);
+    localStorage.setItem('city-search-history', JSON.stringify(updated));
+  };
 
   useEffect(() => {
     if (query.length >= 2) {
@@ -27,14 +51,32 @@ export function CitySearchInput({ onSelect }: CitySearchInputProps) {
 
   useEffect(() => {
     setSelectedIndex(0);
+    setHoveredIndex(null);
+    // Reset refs array when results change
+    resultRefs.current = [];
   }, [results]);
+
+  // Scroll selected result into view when navigating with keyboard
+  useEffect(() => {
+    if (selectedIndex >= 0 && selectedIndex < results.length && hoveredIndex === null) {
+      const selectedElement = resultRefs.current[selectedIndex];
+      if (selectedElement) {
+        selectedElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }
+    }
+  }, [selectedIndex, hoveredIndex, results.length]);
 
   const handleSelect = (city: CityRecord) => {
     onSelect(city);
+    saveToHistory(city);
     setQuery('');
     setIsOpen(false);
-    inputRef.current?.focus();
+    actualInputRef.current?.focus();
   };
+
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen || results.length === 0) return;
@@ -42,99 +84,116 @@ export function CitySearchInput({ onSelect }: CitySearchInputProps) {
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex((prev) => (prev + 1) % results.length);
+        setHoveredIndex(null);
+        setSelectedIndex((prev) => prev < results.length - 1 ? prev + 1 : prev);
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setSelectedIndex((prev) => (prev - 1 + results.length) % results.length);
+        setHoveredIndex(null);
+        setSelectedIndex((prev) => prev > 0 ? prev - 1 : prev);
         break;
-      case 'Enter':
+      case 'Enter': {
         e.preventDefault();
-        if (results[selectedIndex]) {
-          handleSelect(results[selectedIndex]);
+        const indexToSelect = hoveredIndex ?? selectedIndex;
+        if (results[indexToSelect]) {
+          handleSelect(results[indexToSelect]);
         }
         break;
+      }
       case 'Escape':
         setIsOpen(false);
-        inputRef.current?.blur();
+        actualInputRef.current?.blur();
         break;
     }
   };
 
+  // Determine which index is highlighted (hover takes precedence over keyboard selection)
+  const highlightedIndex = hoveredIndex ?? selectedIndex;
+
   return (
-    <div className="relative w-full">
-      <input
-        ref={inputRef}
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onFocus={() => query.length >= 2 && setIsOpen(true)}
-        placeholder={isReady ? "Search for a city..." : "Loading cities..."}
-        disabled={!isReady}
-        aria-label="Search for a city"
-        aria-expanded={isOpen}
-        aria-haspopup="listbox"
-        aria-autocomplete="list"
-        className="
-          w-full px-4 py-3 rounded-lg border-2
-          bg-bg-secondary text-text-primary
-          border-gray-300 dark:border-gray-600
-          focus:border-accent-primary focus:outline-none
-          transition-colors duration-200
-          disabled:opacity-50 disabled:cursor-not-allowed
-        "
-      />
+    <div className="relative w-full space-y-4">
+      {/* Search Input */}
+      <div className="relative">
+        <input
+          ref={actualInputRef}
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={() => {
+            if (query.length >= 2) setIsOpen(true);
+          }}
+          placeholder={isReady ? "Search for a city..." : "Loading cities..."}
+          disabled={!isReady}
+          className="w-full px-4 py-3 pr-10 rounded-lg border bg-bg-primary text-text-primary border-white/20 focus:border-accent-primary focus:ring-2 focus:ring-accent-primary/20 outline-none"
+        />
 
-      <AnimatePresence>
-        {isOpen && results.length > 0 && (
-          <motion.div
-            ref={dropdownRef}
-            variants={dropdownVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            role="listbox"
-            aria-label="City search results"
-            className="
-              absolute z-50 w-full mt-2
-              bg-bg-secondary rounded-lg shadow-xl
-              border border-gray-200 dark:border-gray-700
-              max-h-64 overflow-y-auto
-            "
+        {/* Clear button */}
+        {query && (
+          <button
+            onClick={() => {
+              setQuery('');
+              setIsOpen(false);
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
           >
-            {results.map((city, index) => (
-              <motion.div
-                key={`${city.city}-${city.country}-${index}`}
-                onClick={() => handleSelect(city)}
-                role="option"
-                aria-selected={index === selectedIndex}
-                className={`
-                  px-4 py-3 cursor-pointer
-                  transition-colors duration-150
-                  ${index === selectedIndex
-                    ? 'bg-accent-primary text-white'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }
-                `}
-                whileHover={{ backgroundColor: index === selectedIndex ? undefined : 'rgba(0,0,0,0.05)' }}
-              >
-                <div className="font-medium">{city.city}</div>
-                <div className={`text-sm ${index === selectedIndex ? 'text-white/80' : 'text-text-secondary'}`}>
-                  {city.country} {city.population ? `• ${(city.population / 1000000).toFixed(1)}M` : ''}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+            <X className="w-4 h-4" />
+          </button>
         )}
-      </AnimatePresence>
 
-      {isLoading && (
-        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-          <div className="w-5 h-5 border-2 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+        {/* Loading indicator */}
+        {isLoading && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <div className="w-4 h-4 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+      </div>
+
+      {/* Results Dropdown */}
+      {isOpen && (
+        <div className="absolute z-50 w-full bg-bg-primary border border-white/20 rounded-lg shadow-lg max-h-80 overflow-y-auto">
+          {results.length > 0 ? (
+            <div className="py-2">
+              {results.map((city, index) => (
+                <button
+                  key={`${city.city}-${city.country}-${index}`}
+                  ref={(el) => (resultRefs.current[index] = el)}
+                  onClick={() => handleSelect(city)}
+                  onMouseEnter={() => {
+                    setHoveredIndex(index);
+                    setSelectedIndex(index);
+                  }}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                  className={`w-full px-4 py-3 text-left hover:bg-bg-secondary ${
+                    index === highlightedIndex ? 'bg-bg-secondary border-l-2 border-accent-primary' : ''
+                  }`}
+                >
+                  <div>
+                    <div className="font-medium text-text-primary">
+                      {city.city}
+                    </div>
+                    <div className="text-sm text-text-secondary">
+                      {city.country}
+                      {city.admin_name && ` • ${city.admin_name}`}
+                      {city.population && ` • ${city.population < 1000000 ? Math.round(city.population / 1000) + 'K' : (city.population / 1000000).toFixed(1) + 'M'} people`}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : query.length >= 2 && !isLoading ? (
+            <div className="px-4 py-3 text-text-secondary">
+              No cities found
+            </div>
+          ) : null}
         </div>
       )}
+
     </div>
   );
-}
+  }
+);
+
+CitySearchInput.displayName = 'CitySearchInput';
+
 
