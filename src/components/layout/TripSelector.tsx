@@ -16,10 +16,6 @@ export function TripSelector({ onNewTrip, onEditTrip }: TripSelectorProps = {}) 
   const selectedTripId = preferences.selectedTripId;
   const [isExpanded, setIsExpanded] = useState(false);
 
-  if (trips.length === 0) {
-    return null;
-  }
-
   const selectedTrip = trips.find(t => t.id === selectedTripId);
 
   const handleDeleteTrip = (tripId: string) => {
@@ -45,7 +41,7 @@ export function TripSelector({ onNewTrip, onEditTrip }: TripSelectorProps = {}) 
         whileTap={{ scale: 0.98 }}
         aria-expanded={isExpanded}
         aria-haspopup="listbox"
-        aria-label="Select trip to display"
+        aria-label={trips.length === 0 ? "Create your first trip" : "Select trip to display"}
       >
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {/* Trip Icon */}
@@ -53,12 +49,18 @@ export function TripSelector({ onNewTrip, onEditTrip }: TripSelectorProps = {}) 
             <motion.div
               className="w-8 h-8 rounded-xl flex items-center justify-center relative overflow-hidden"
               style={{
-                background: selectedTrip
+                background: trips.length === 0
+                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.3))'
+                  : selectedTrip
                   ? `linear-gradient(135deg, ${selectedTrip.color}20, ${selectedTrip.color}30)`
                   : 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04))'
               }}
             >
-              <Route className="w-4 h-4 text-text-primary" />
+              {trips.length === 0 ? (
+                <Plus className="w-4 h-4 text-accent-primary" />
+              ) : (
+                <Route className="w-4 h-4 text-text-primary" />
+              )}
               {selectedTripId && (
                 <motion.div
                   className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-white shadow-sm"
@@ -74,10 +76,12 @@ export function TripSelector({ onNewTrip, onEditTrip }: TripSelectorProps = {}) 
           {/* Trip Info */}
           <div className="flex-1 text-left min-w-0">
             <div className="font-semibold text-text-primary truncate">
-              {selectedTrip ? selectedTrip.name : 'All Cities'}
+              {trips.length === 0 ? 'Create Trip' : selectedTrip ? selectedTrip.name : 'All Cities'}
             </div>
             <div className="text-xs text-text-secondary">
-              {selectedTrip
+              {trips.length === 0
+                ? 'Add two or more cities to begin'
+                : selectedTrip
                 ? `${selectedTrip.cityIds.length} cities`
                 : `${cities.length} cities`
               }
