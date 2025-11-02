@@ -133,13 +133,6 @@ export function CityList({ highlightedCityId = null }: CityListProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-12 h-12 bg-accent-primary/10 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-accent-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              </div>
-            </div>
           </div>
           <div className="space-y-2">
             <h3 className="text-xl font-bold text-text-primary">
@@ -162,15 +155,6 @@ export function CityList({ highlightedCityId = null }: CityListProps) {
               Clear Filters
             </Button>
           )}
-          <div className="mt-4 p-4 bg-bg-primary rounded-lg border border-white/20 text-left w-full">
-            <p className="text-sm font-medium text-text-primary mb-2">💡 Quick Tips:</p>
-            <ul className="text-xs text-text-secondary space-y-1 list-disc list-inside">
-              <li>Type at least 2 characters to search</li>
-              <li>Use <kbd className="px-1.5 py-0.5 bg-bg-secondary rounded text-xs font-mono">Ctrl+F</kbd> to focus search</li>
-              <li>Press <kbd className="px-1.5 py-0.5 bg-bg-secondary rounded text-xs font-mono">Enter</kbd> to select</li>
-              <li>Use batch input for multiple cities</li>
-            </ul>
-          </div>
         </div>
       </motion.div>
     );
