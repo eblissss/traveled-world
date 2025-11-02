@@ -27,7 +27,7 @@ export default defineConfig({
           // Vendor chunks for better caching
           'react-vendor': ['react', 'react-dom'],
           'globe-vendor': ['react-globe.gl'],
-          'map-vendor': ['react-leaflet', 'leaflet', 'leaflet.markercluster'],
+          'map-vendor': ['react-leaflet', 'leaflet'],
           'ui-vendor': [
             '@radix-ui/react-dialog',
             '@radix-ui/react-select',
